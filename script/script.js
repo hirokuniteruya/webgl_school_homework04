@@ -207,7 +207,7 @@
             // 音声データの波形取得機能（アナライザの生成）
             audioAnalyser = ac.createAnalyser();
             // 取得する音声データのパス
-            const audioSource = '../audio/audio.mp3';
+            const audioSource = './audio/audio.mp3';
 
             const xhr = new XMLHttpRequest();
             xhr.open('GET', audioSource, true);

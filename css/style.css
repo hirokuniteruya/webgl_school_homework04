@@ -45,6 +45,8 @@ canvas {
     margin-bottom: 4px;
     border: none;
     border-radius: 4px;
+    background: #fff;
+    color: #000;
     cursor: pointer;
     user-select: none;
 }

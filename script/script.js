@@ -61,21 +61,39 @@
      * 頂点属性（頂点ジオメトリ）のセットアップを行う
      */
     function setupGeometry(){
+        const radius = 0.5;
+
         position = [
-             0.0,  0.5,  0.0, // ひとつ目の頂点の x, y, z 座標
-             0.5, -0.5,  0.0, // ふたつ目の頂点の x, y, z 座標
-            -0.5, -0.5,  0.0, // みっつ目の頂点の x, y, z 座標
+            0.0,  0.5,  0.0, // ひとつ目の頂点の x, y, z 座標
+            radius * Math.cos(getAngular(1)), radius * Math.sin(getAngular(1)), 0.0, // ふたつ目の頂点の x, y, z 座標
+            radius * Math.cos(getAngular(2)), radius * Math.sin(getAngular(2)), 0.0, // みっつ目の頂点の x, y, z 座標
+            0.0,  0.5,  0.0, // よっつ目の頂点の x, y, z 座標
+            radius * Math.cos(getAngular(2)), radius * Math.sin(getAngular(2)), 0.0, // いつつ目の頂点の x, y, z 座標
+            radius * Math.cos(getAngular(3)), radius * Math.sin(getAngular(3)), 0.0, // むっつ目の頂点の x, y, z 座標
+            0.0,  0.5,  0.0, // ななつ目の頂点の x, y, z 座標
+            radius * Math.cos(getAngular(3)), radius * Math.sin(getAngular(3)), 0.0, // やっつ目の頂点の x, y, z 座標
+            radius * Math.cos(getAngular(4)), radius * Math.sin(getAngular(4)), 0.0, // ここのつ目頂点の x, y, z 座標
         ];
         color = [
-            1.0, 0.0, 0.0, 1.0, // RGBA を 0.0 ～ 1.0 の値で表現
-            0.0, 1.0, 0.0, 1.0, // RGBA を 0.0 ～ 1.0 の値で表現
-            0.0, 0.0, 1.0, 1.0, // RGBA を 0.0 ～ 1.0 の値で表現
+            1.0, 0.0, 0.0, 1.0,
+            0.0, 1.0, 0.0, 1.0,
+            0.0, 0.0, 1.0, 1.0,
+            1.0, 0.0, 0.0, 1.0,
+            0.0, 1.0, 0.0, 1.0,
+            0.0, 0.0, 1.0, 1.0,
+            1.0, 0.0, 0.0, 1.0,
+            0.0, 1.0, 0.0, 1.0,
+            0.0, 0.0, 1.0, 1.0,
         ];
         // 配列に入れておく
         vbo = [
             webgl.createVBO(position),
             webgl.createVBO(color),
         ];
+
+        function getAngular(idx) {
+            return ( Math.PI / 2 ) - ( 2 * Math.PI / 5 ) * idx; // １周の 5分の1 の角度
+        }
     }
 
     /**

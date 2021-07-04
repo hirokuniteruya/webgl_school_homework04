@@ -20,6 +20,11 @@
     let uniform = null;
     let mouse = [0, 0];
 
+    // audio 関連
+    let ac, audioBufferSourceNode, audioAnalyser, audioCount;
+    // インフォパネルの要素への参照を格納する変数
+    let mouseIndicator, volumeBar;
+
     // webgl.js に記載のクラスをインスタンス化する
     const webgl = new WebGLUtility();
 
@@ -31,10 +36,21 @@
         webgl.width  = size;
         webgl.height = size;
 
+        // インフォパネルの要素への参照を取得
+        mouseIndicator = document.querySelector('#mouse-indicator');
+        volumeBar = document.querySelector('#volume-bar');
+    
         // マウスカーソルが動いた際のイベントを登録しておく
         window.addEventListener('mousemove', (event) => {
             mouse[0] = event.clientX / window.innerWidth;
             mouse[1] = event.clientY / window.innerHeight;
+            
+            // インフォパネルのマウス座標の表示を更新
+            const truncatedMouse = {
+                x: Math.floor(mouse[0] * 100) / 100,
+                y: Math.floor(mouse[1] * 100) / 100,
+            }
+            mouseIndicator.innerHTML = `x: ${truncatedMouse.x}<br />y: ${truncatedMouse.y}`;
         }, false);
 
         let vs = null;
@@ -52,8 +68,20 @@
             setupGeometry();
             setupLocation();
 
+            return initAudio();
+        })
+        .then(buffer => {
+            
+            setAudio(buffer);
+            
             // 準備ができたらレンダリングを開始
             render();
+
+            document.querySelector('#audio-start').addEventListener('click', () => {
+                // 音源の再生を開始
+                audioBufferSourceNode.start(0);
+            })
+
         });
     }, false);
 
@@ -112,6 +140,7 @@
         // uniform 変数のロケーションを取得する
         uniform = {
             mouse: gl.getUniformLocation(webgl.program, 'mouse'),
+            volume: gl.getUniformLocation(webgl.program, 'volume'),
         };
     }
 
@@ -129,6 +158,14 @@
      * レンダリングを行う
      */
     function render(){
+
+        // 時間領域の波形データを取得して audioCount 配列へ格納
+        audioAnalyser.getByteTimeDomainData(audioCount);
+        // この関数実行タイミングでの波形データの最大値を取得
+        let volume = audioCount.reduce((a,b) => Math.max(a, b));
+        // 0 〜 255 の値が入るので、 0 〜 1 になるように調整
+        volume = volume / 255;
+
         const gl = webgl.gl;
 
         // 再帰呼び出しを行う
@@ -139,9 +176,81 @@
 
         // uniform 変数は常に変化し得るので毎フレーム値を送信する
         gl.uniform2fv(uniform.mouse, mouse);
+        gl.uniform1f(uniform.volume, volume);
 
         // 登録されている VBO の情報をもとに頂点を描画する
         gl.drawArrays(gl.TRIANGLES, 0, position.length / 3);
+
+        // ボリュームの大きさを示すバーの幅を変更
+        volumeBar.style.width = `${volume * 200}px`;
+
     }
+
+
+    /*-------------------------------*
+    * Web Audio API 関連の関数定義部
+    *-------------------------------*/
+
+    /**
+     * AudioContext の生成と、オーディオバッファソースノードとアナライザの生成と、
+     * 音声データの取得を行い、デコード後の音声データで満足する Promise オブジェクトを返します。
+     * @returns {Promise} デコードされた音声データで満足する Promise オブジェクト
+     */
+    function initAudio() {
+
+        return new Promise((resolve, reject) => {
+
+            // AudioContext の生成
+            ac = new window.AudioContext();
+            // 音声データの入力機能（AudioBufferSourceNode の生成）
+            audioBufferSourceNode = ac.createBufferSource();
+            // 音声データの波形取得機能（アナライザの生成）
+            audioAnalyser = ac.createAnalyser();
+            // 取得する音声データのパス
+            const audioSource = '../audio/audio.mp3';
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', audioSource, true);
+            xhr.responseType = 'arraybuffer';
+            // 取得した音声データをデコードし、この後の処理に渡す
+            xhr.onload = () => {
+                ac.decodeAudioData(xhr.response, buffer => resolve(buffer));
+            }
+            xhr.send();
+
+        });
+
+    }
+
+    /**
+     * オーディオバッファを受け取り、各種設定及び各種ノードの接続を行い、
+     * 音源の再生を開始します。
+     * @param {AudioBuffer} buffer 
+     */
+    function setAudio(buffer) {
+
+        // 描画の更新をスムーズにするかどうかを決める
+        audioAnalyser.smoothingTimeConstant = 1.0;
+
+        // 渡ってきた音声データを音源として設定
+        audioBufferSourceNode.buffer = buffer;
+
+        // 音源がループするように設定
+        audioBufferSourceNode.loop = true;
+
+        // 時間領域の波形データを格納する配列を生成
+        audioCount = new Uint8Array(audioAnalyser.frequencyBinCount);
+
+        // 音源をアナライザに接続
+        audioBufferSourceNode.connect(audioAnalyser);
+
+        // アナライザを出力先のノードに接続
+        audioAnalyser.connect(ac.destination);
+
+        // 音源の再生を開始
+        // audioBufferSourceNode.start(0);
+
+    }
+
 })();
 

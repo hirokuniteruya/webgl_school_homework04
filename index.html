@@ -9,5 +9,21 @@
     </head>
     <body>
         <canvas id="webgl-canvas"></canvas>
+
+        <div class="info-panel">
+            <p class="variable-info">
+                [ 現在の mouse 座標 ]<br />
+                <span id="mouse-indicator">
+                    x: 0<br />y: 0
+                </span><br /><br />
+                [ 現在の volume の値 ]<br />
+                <!-- <span id="volume-indicator"></span> -->
+            </p>
+
+            <div id="volume-bar"></div>
+
+            <button id="audio-start">AudioStart</button>
+            <p>（ 音量注意 ）</p>
+        </div>
     </body>
 </html>

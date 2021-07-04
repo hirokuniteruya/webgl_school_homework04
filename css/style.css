@@ -10,8 +10,41 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
+    background-color: #000;
 }
 
 canvas {
     margin: 0px auto;
+}
+
+.info-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 200px;
+    padding: 16px;
+    background: #0005;
+    text-align: left;
+    color: #bbb;
+    font-size: 12px;
+    font-family: sans-serif;
+}
+
+.variable-info {
+    margin-bottom: 8px;
+}
+
+#volume-bar {
+    height: 2px;
+    background: lightgreen;
+    margin-bottom: 32px;
+}
+
+#audio-start {
+    padding: 16px 32px;
+    margin-bottom: 4px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
 }

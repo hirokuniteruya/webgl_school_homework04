@@ -48,3 +48,12 @@ canvas {
     cursor: pointer;
     user-select: none;
 }
+
+.code-link {
+    margin-top: 8px;
+}
+
+.info-panel a {
+    color: rgb(101, 133, 202);
+    text-decoration: none;
+}
